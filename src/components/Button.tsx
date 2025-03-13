@@ -3,25 +3,26 @@ import { Button as GlueStackButton, Text, ButtonSpinner} from '@gluestack-ui/the
 
 type Props = ComponentProps<typeof GlueStackButton> & {
   title: string
+  variant?: 'solid' | 'outline'
   isLoading?: boolean
 }
 
-export function Button ({title, isLoading=false, ...rest}: Props) {
+export function Button ({title, isLoading=false, variant='solid', ...rest}: Props) {
   return (
     <GlueStackButton
       w="$full"
       h="$14"
-      bg="$green700"
-      borderWidth="$0"
+      bg={variant === 'solid' ? '$green700' : 'transparent' }
+      borderWidth={variant === 'solid' ? '$0' : '$1' }
       borderColor='$green500'
       rounded="$sm"
-      $active-bg='$green500'
+      $active-bg={variant === 'solid' ? '$green500' : '$gray500'}
       disabled={isLoading}
       {...rest}
     >
-      {isLoading ? <ButtonSpinner color='$white' /> : (
+      {isLoading ? <ButtonSpinner color='$green500' /> : (
         <Text
-          color='$white'
+          color={variant === 'solid' ? '$white' : '$green500'}
           fontFamily='$heading'
           fontSize='$sm'
         >
