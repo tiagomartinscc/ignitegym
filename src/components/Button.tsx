@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react'
-import { Button as GlueStackButton, Text, ButtonSpinner} from '@gluestack-ui/themed'
+import { Button as GlueStackButton, Text, ButtonSpinner } from '@gluestack-ui/themed'
 
 type Props = ComponentProps<typeof GlueStackButton> & {
   title: string
