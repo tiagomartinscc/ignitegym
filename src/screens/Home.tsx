@@ -5,6 +5,7 @@ import { Group } from "@components/Group";
 import { HomeHeader } from "@components/HomeHeader";
 import { FlatList } from "react-native";
 import { Text } from "@gluestack-ui/themed";
+import { ExerciseCard } from "@components/ExerciseCard";
 
 export function Home() {
   const [groupSelected, setGroupSelected] = useState('Costas')
@@ -44,6 +45,9 @@ export function Home() {
             4
           </Text>
         </HStack>
+
+        <ExerciseCard />
+
       </VStack>
     </VStack>
   )
