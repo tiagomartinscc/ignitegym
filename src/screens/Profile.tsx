@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { Alert, ScrollView, TouchableOpacity } from "react-native"
+import { ScrollView, TouchableOpacity } from "react-native"
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
-import { VStack, Text, Center, Heading } from "@gluestack-ui/themed"
+import { VStack, Text, Center, Heading, useToast } from "@gluestack-ui/themed"
 
 import { ScreenHeader } from "@components/ScreenHeader"
 import { UserPhoto } from "@components/UserPhoto"
@@ -11,6 +11,7 @@ import { Button } from "@components/Button"
 import { ToastMessage } from '@components/ToastMessage'
 
 export function Profile() {
+  const toast = useToast()
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
 
   async function handleUserPhotoSelect() {
@@ -31,7 +32,19 @@ export function Profile() {
           size: number
         }
         if(photoInfo.size && (photoInfo.size / 1024/ 1024) > 5) {
-          return Alert.alert('Esta imagem é muito grande. Escolha uma de até 5MB')
+          // return Alert.alert('Esta imagem é muito grande. Escolha uma de até 5MB')
+          return toast.show({
+            placement: 'top',
+            render: ({id}) => (
+              <ToastMessage
+                id={id}
+                title="Essa Mensagem é muito grande"
+                description="Escolha um aimagem com até 5MB."
+                action="error"
+                onClose={() => toast.close(id)}
+            />              
+            )
+          })
         }
         setUserPhoto(photoUri)
       }
@@ -43,13 +56,6 @@ export function Profile() {
   return (
     <VStack flex={1}>
       <ScreenHeader title="Perfil" />
-      <ToastMessage
-        id="1"
-        title="Mensagem de exemplo"
-        description="asdasdakjsd asdajksdbasjdhasd"
-        action="success"
-        onClose={() => {}}
-      />
       <ScrollView contentContainerStyle={{ paddingBottom: 36}}>
         <Center mt="$6" px="$10">
           <UserPhoto 
