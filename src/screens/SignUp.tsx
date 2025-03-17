@@ -4,12 +4,15 @@ import { useForm, Controller } from 'react-hook-form'
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import axios from 'axios'
 
 import Logo from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
 
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
+import { api } from '@services/api'
+import { Alert } from 'react-native'
 
 type FormDataProps = {
   name: string
@@ -39,21 +42,18 @@ export function SignUp() {
   }
 
   async function handleSignUp({name, email, password}: FormDataProps) {
-    const api = 'http://192.168.15.17:3333'
-    const response = await fetch(`${api}/users`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const response = await api.post('/users', {
         name,
         email,
         password
       })
-    })
-    const data = await response.json()
-    console.log(data)
+      console.log(response.data)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        Alert.alert(error.response?.data.message)
+      }
+    }
   }  
 
   return (
