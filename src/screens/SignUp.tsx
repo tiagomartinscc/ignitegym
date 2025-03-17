@@ -38,9 +38,9 @@ export function SignUp() {
     navigation.navigate('signIn')
   }
 
-  function handleSignUp({name, email, password}: FormDataProps) {
+  async function handleSignUp({name, email, password}: FormDataProps) {
     const api = 'http://192.168.15.17:3333'
-    fetch(`${api}/users`, {
+    const response = await fetch(`${api}/users`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -52,8 +52,8 @@ export function SignUp() {
         password
       })
     })
-    .then(response => response.json())
-    .then(data => console.log(data))
+    const data = await response.json()
+    console.log(data)
   }  
 
   return (
