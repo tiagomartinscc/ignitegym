@@ -7,11 +7,10 @@ import { useNavigation } from '@react-navigation/native'
 
 import { Input } from "@components/Input";
 import { Button } from "@components/Button";
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 
 export function SignUp() {
-  const { control, } = useForm()
+  const { control, handleSubmit } = useForm()
 
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
 
@@ -19,9 +18,8 @@ export function SignUp() {
     navigation.navigate('signIn')
   }
 
-  function handleSignUp() {
-    console.log({
-    });
+  function handleSignUp(data: any) {
+    console.log(data);
   }  
 
   return (
@@ -100,13 +98,15 @@ export function SignUp() {
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
+                onSubmitEditing={handleSubmit(handleSignUp)}
+                returnKeyType='send'
               />            
             )}
           />
   
           <Button 
             title="Criar e acessar"
-            onPress={handleSignUp}
+            onPress={handleSubmit(handleSignUp)}
           />
 
           </Center>
