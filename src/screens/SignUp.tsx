@@ -1,16 +1,23 @@
 import BackgroundImg from '@assets/background.png'
 import Logo from '@assets/logo.svg'
 
-import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
+import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed"
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 import { useNavigation } from '@react-navigation/native'
 
-import { Input } from "@components/Input";
-import { Button } from "@components/Button";
-import { useForm, Controller } from 'react-hook-form';
+import { Input } from "@components/Input"
+import { Button } from "@components/Button"
+import { useForm, Controller } from 'react-hook-form'
+
+type FormDataProps = {
+  name: string
+  email: string
+  password: string
+  password_confirm: string
+}
 
 export function SignUp() {
-  const { control, handleSubmit } = useForm()
+  const { control, handleSubmit } = useForm<FormDataProps>()
 
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
 
@@ -18,8 +25,8 @@ export function SignUp() {
     navigation.navigate('signIn')
   }
 
-  function handleSignUp(data: any) {
-    console.log(data);
+  function handleSignUp({name, email, password, password_confirm}: FormDataProps) {
+    console.log({name, email, password, password_confirm});
   }  
 
   return (
@@ -91,7 +98,7 @@ export function SignUp() {
 
           <Controller 
             control={control}
-            name="confirm_password"
+            name="password_confirm"
             render={({field: {onChange, value}}) => (          
               <Input 
                 placeholder="Confirme a senha" 
