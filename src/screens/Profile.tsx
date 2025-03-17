@@ -8,6 +8,7 @@ import { ScreenHeader } from "@components/ScreenHeader"
 import { UserPhoto } from "@components/UserPhoto"
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
+import { ToastMessage } from '@components/ToastMessage'
 
 export function Profile() {
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
@@ -42,6 +43,13 @@ export function Profile() {
   return (
     <VStack flex={1}>
       <ScreenHeader title="Perfil" />
+      <ToastMessage
+        id="1"
+        title="Mensagem de exemplo"
+        description="asdasdakjsd asdajksdbasjdhasd"
+        action="success"
+        onClose={() => {}}
+      />
       <ScrollView contentContainerStyle={{ paddingBottom: 36}}>
         <Center mt="$6" px="$10">
           <UserPhoto 
