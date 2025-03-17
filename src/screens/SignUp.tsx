@@ -68,15 +68,10 @@ export function SignUp() {
                   placeholder="Nome"
                   onChangeText={onChange}
                   value={value}
+                  errorMessage={errors.name?.message}
                 />
               )}
             />
-
-            {errors.name?.message && 
-              <Text color='$white'>
-                {errors.name.message}
-              </Text>
-            }
 
           <Controller 
             control={control}
@@ -95,14 +90,10 @@ export function SignUp() {
                 autoCapitalize="none"
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.email?.message}
               />
             )}
           />
-          {errors.email?.message && 
-            <Text color='$white'>
-              {errors.email.message}
-            </Text>
-          }          
 
         <Controller 
             control={control}
@@ -113,6 +104,7 @@ export function SignUp() {
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.password?.message}
               />
             )}
           />
@@ -126,6 +118,7 @@ export function SignUp() {
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.password_confirm?.message}
                 onSubmitEditing={handleSubmit(handleSignUp)}
                 returnKeyType='send'
               />            
