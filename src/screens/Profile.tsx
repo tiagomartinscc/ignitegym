@@ -1,22 +1,40 @@
-import { ScrollView, TouchableOpacity } from "react-native";
-import { ScreenHeader } from "@components/ScreenHeader";
-import { VStack, Text, Center, Heading } from "@gluestack-ui/themed";
-import { UserPhoto } from "@components/UserPhoto";
-import { Input } from "@components/Input";
-import { Button } from "@components/Button";
+import { useState } from "react"
+import { ScrollView, TouchableOpacity } from "react-native"
+import * as ImagePicker from 'expo-image-picker'
+import { VStack, Text, Center, Heading } from "@gluestack-ui/themed"
+
+import { ScreenHeader } from "@components/ScreenHeader"
+import { UserPhoto } from "@components/UserPhoto"
+import { Input } from "@components/Input"
+import { Button } from "@components/Button"
 
 export function Profile() {
+  const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
+
+  async function handleUserPhotoSelect() {
+    const photoSelected = await ImagePicker.launchImageLibraryAsync({
+      // mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+      aspect: [4, 4],
+      allowsEditing: true
+    })
+    if (photoSelected.canceled) {
+      return
+    }
+    setUserPhoto(photoSelected.assets[0].uri)
+  }
+
   return (
     <VStack flex={1}>
       <ScreenHeader title="Perfil" />
       <ScrollView contentContainerStyle={{ paddingBottom: 36}}>
         <Center mt="$6" px="$10">
           <UserPhoto 
-            source={{uri: 'https://github.com/tiagomartinscc.png'}} 
+            source={{uri: userPhoto}} 
             alt='Foto do usuário'
             size="xl"
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleUserPhotoSelect}>
             <Text
               color="$green500"
               fontFamily="$heading"
