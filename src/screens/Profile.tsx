@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { ScrollView, TouchableOpacity } from "react-native"
+import { Alert, ScrollView, TouchableOpacity } from "react-native"
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import { VStack, Text, Center, Heading } from "@gluestack-ui/themed"
@@ -13,23 +13,29 @@ export function Profile() {
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
 
   async function handleUserPhotoSelect() {
-    const photoSelected = await ImagePicker.launchImageLibraryAsync({
-      // mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-      aspect: [4, 4],
-      allowsEditing: true
-    })
-    if (photoSelected.canceled) {
-      return
-    }
-
-    const photoUri = photoSelected.assets[0].uri
-    if (photoUri) {
-      const photoInfo = (await FileSystem.getInfoAsync(photoUri)) as {
-        size: number
+    try {
+      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+        // mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true
+      })
+      if (photoSelected.canceled) {
+        return
       }
-      console.log(photoInfo)
-      setUserPhoto(photoUri)
+  
+      const photoUri = photoSelected.assets[0].uri
+      if (photoUri) {
+        const photoInfo = (await FileSystem.getInfoAsync(photoUri)) as {
+          size: number
+        }
+        if(photoInfo.size && (photoInfo.size / 1024/ 1024) > 5) {
+          return Alert.alert('Esta imagem é muito grande. Escolha uma de até 5MB')
+        }
+        setUserPhoto(photoUri)
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
 
