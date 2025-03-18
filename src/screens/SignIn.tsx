@@ -1,5 +1,5 @@
 
-import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed"
+import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed"
 import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 import { useNavigation } from '@react-navigation/native'
 
@@ -13,6 +13,8 @@ import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { Controller, useForm } from "react-hook-form"
 import { useAuth } from "@hooks/useAuth"
+import { AppError } from "@utils/AppError"
+import { ToastMessage } from "@components/ToastMessage"
 
 type FormDataProps = {
   email: string
@@ -26,16 +28,31 @@ const signInSchema = yup.object({
 
 export function SignIn() {
   const { signIn } = useAuth()
+  const navigator = useNavigation<AuthNavigatorRoutesProps>()
+  const toast = useToast()
 
   const { control, handleSubmit, formState: {errors} } = useForm<FormDataProps>({
     resolver: yupResolver(signInSchema)
   })
 
   async function handleSignIn({email, password}: FormDataProps) {
-    await signIn(email, password);
+    try {
+      await signIn(email, password);
+    } catch(error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde'
+      toast.show({
+        placement: 'top',
+        render: ({id}) => (
+          <ToastMessage
+            id={id}
+            title={title}
+            action="error"
+            onClose={() => toast.close(id)}
+        /> )
+      })      
+    }
   }    
-
-  const navigator = useNavigation<AuthNavigatorRoutesProps>()
 
   function handleNewAccount() {
     navigator.navigate('signUp')
