@@ -3,6 +3,7 @@ import { TouchableOpacity, ScrollView } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
 import { AppNavigatorRoutesProps } from '@routes/app.routes'
+import { Image } from "expo-image"
 
 import {
   Heading,
@@ -10,7 +11,6 @@ import {
   Icon,
   VStack,
   Text,
-  Image,
   Box,
   useToast,
 } from '@gluestack-ui/themed'
@@ -28,6 +28,7 @@ import { ExerciseDTO } from '@dtos/ExerciseDTO'
 import BodySvg from '@assets/body.svg'
 import SeriesSvg from '@assets/series.svg'
 import RepetitionsSvg from '@assets/repetitions.svg'
+import { Loading } from '@components/Loading'
 
 
 type RouteParamsProps = {
@@ -37,6 +38,7 @@ type RouteParamsProps = {
 export function Exercise() {
   const navigation = useNavigation<AppNavigatorRoutesProps>()
   const [exercise, setExercise] = useState<ExerciseDTO>({} as ExerciseDTO)
+  const [isLoading, setIsLoading] = useState(true)
   const toast = useToast()
   const route = useRoute()
   const { exerciseId } = route.params as RouteParamsProps;
@@ -47,6 +49,7 @@ export function Exercise() {
 
   async function fetchExerciseDetails() {
     try {
+      setIsLoading(true)
       const {data} = await api.get(`/exercises/${exerciseId}`)
       setExercise(data)
     } catch (error) {
@@ -64,12 +67,18 @@ export function Exercise() {
         /> )
       })      
       console.log(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   useEffect(() => {
     fetchExerciseDetails()
   }, [exerciseId])
+
+  if (isLoading) {
+    return <Loading />
+  }
 
   return (
     <VStack flex={1}>
@@ -113,10 +122,8 @@ export function Exercise() {
                 uri: `${api.defaults.baseURL}/exercise/demo/${exercise.demo}`,
               }}
               alt="Exercício"
-              resizeMode="cover"
-              rounded="$lg"
-              w="$full"
-              h="$80"
+              contentFit="cover"
+              style={{ width: "100%", height: 320, borderRadius: 8 }}
             />
           </Box>
 
