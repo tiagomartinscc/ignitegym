@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { TouchableOpacity, ScrollView } from 'react-native'
 import { useNavigation, useRoute } from '@react-navigation/native'
 
@@ -11,13 +12,23 @@ import {
   Text,
   Image,
   Box,
+  useToast,
 } from '@gluestack-ui/themed'
 
+import { api } from '@services/api'
+
 import { ArrowLeft } from 'lucide-react-native'
+
+import { Button } from '@components/Button'
+import { AppError } from '@utils/AppError'
+import { ToastMessage } from '@components/ToastMessage'
+
+import { ExerciseDTO } from '@dtos/ExerciseDTO'
+
 import BodySvg from '@assets/body.svg'
 import SeriesSvg from '@assets/series.svg'
 import RepetitionsSvg from '@assets/repetitions.svg'
-import { Button } from '@components/Button'
+
 
 type RouteParamsProps = {
   exerciseId: string
@@ -25,6 +36,8 @@ type RouteParamsProps = {
 
 export function Exercise() {
   const navigation = useNavigation<AppNavigatorRoutesProps>()
+  const [exercise, setExercise] = useState<ExerciseDTO>({} as ExerciseDTO)
+  const toast = useToast()
   const route = useRoute()
   const { exerciseId } = route.params as RouteParamsProps;
 
@@ -32,8 +45,34 @@ export function Exercise() {
     navigation.goBack()
   }
 
+  async function fetchExerciseDetails() {
+    try {
+      const {data} = await api.get(`/exercises/${exerciseId}`)
+      setExercise(data)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 
+        'Não foi possível obter o exercício. Tente novamente mais tarde.'
+      toast.show({
+        placement: 'top',
+        render: ({id}) => (
+          <ToastMessage
+            id={id}
+            title={title}
+            action="error"
+            onClose={() => toast.close(id)}
+        /> )
+      })      
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchExerciseDetails()
+  }, [exerciseId])
+
   return (
-<VStack flex={1}>
+    <VStack flex={1}>
       <VStack px="$8" bg="$gray600" pt="$12">
         <TouchableOpacity onPress={handleGoBack}>
           <Icon as={ArrowLeft} color="$green500" size="xl" />
@@ -51,13 +90,13 @@ export function Exercise() {
             fontSize="$lg"
             flexShrink={1}
           >
-            Puxada frontal
+            {exercise.name}
           </Heading>
           <HStack alignItems="center">
             <BodySvg />
 
             <Text color="$gray200" ml="$1" textTransform="capitalize">
-              Costas
+              {exercise.group}
             </Text>
           </HStack>
         </HStack>
@@ -68,17 +107,18 @@ export function Exercise() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         <VStack p="$8">
-          <Image
-            source={{
-              uri: 'https://static.wixstatic.com/media/2edbed_60c206e178ad4eb3801f4f47fc6523df~mv2.webp/v1/fill/w_350,h_375,al_c/2edbed_60c206e178ad4eb3801f4f47fc6523df~mv2.webp',
-            }}
-            alt="Exercício"
-            mb="$3"
-            resizeMode="cover"
-            rounded="$lg"
-            w="$full"
-            h="$80"
-          />
+          <Box rounded="lg" mb="$3" overflow='hidden'>
+            <Image
+              source={{
+                uri: `${api.defaults.baseURL}/exercise/demo/${exercise.demo}`,
+              }}
+              alt="Exercício"
+              resizeMode="cover"
+              rounded="$lg"
+              w="$full"
+              h="$80"
+            />
+          </Box>
 
           <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
             <HStack
@@ -90,14 +130,14 @@ export function Exercise() {
               <HStack>
                 <SeriesSvg />
                 <Text color="$gray200" ml="$2">
-                  3 séries
+                  {exercise.series} séries
                 </Text>
               </HStack>
 
               <HStack>
                 <RepetitionsSvg />
                 <Text color="$gray200" ml="$2">
-                  12 repetições
+                {exercise.repetitions} repetições
                 </Text>
               </HStack>
             </HStack>
