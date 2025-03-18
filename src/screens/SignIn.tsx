@@ -12,6 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { Controller, useForm } from "react-hook-form"
+import { useAuth } from "@hooks/useAuth"
 
 type FormDataProps = {
   email: string
@@ -24,12 +25,14 @@ const signInSchema = yup.object({
 })
 
 export function SignIn() {
+  const { signIn } = useAuth()
+
   const { control, handleSubmit, formState: {errors} } = useForm<FormDataProps>({
     resolver: yupResolver(signInSchema)
   })
 
-  function handleSignIn({email, password}: FormDataProps) {
-    console.log({email, password});
+  async function handleSignIn({email, password}: FormDataProps) {
+    await signIn(email, password);
   }    
 
   const navigator = useNavigation<AuthNavigatorRoutesProps>()
