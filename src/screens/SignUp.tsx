@@ -1,10 +1,13 @@
+import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed"
+
 import { useForm, Controller } from 'react-hook-form'
-import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
+import { VStack, Image, Center, Text, Heading, ScrollView, useToast } from "@gluestack-ui/themed"
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+
 import { AppError } from '@utils/AppError'
+import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 
 import Logo from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
@@ -12,8 +15,8 @@ import BackgroundImg from '@assets/background.png'
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { api } from '@services/api'
-import { Alert } from 'react-native'
 import { ToastMessage } from '@components/ToastMessage'
+import { useAuth } from '@hooks/useAuth'
 
 type FormDataProps = {
   name: string
@@ -32,7 +35,9 @@ const signUpSchema = yup.object({
 })
 
 export function SignUp() {
+  const [isLoading, setIsLoading] = useState(false)
   const toast = useToast()
+  const { signIn } = useAuth()
   const { control, handleSubmit, formState: {errors} } = useForm<FormDataProps>({
     resolver: yupResolver(signUpSchema)
   })
@@ -45,13 +50,15 @@ export function SignUp() {
 
   async function handleSignUp({name, email, password}: FormDataProps) {
     try {
-      const response = await api.post('/users', {
+      setIsLoading(true)
+      await api.post('/users', {
         name,
         email,
         password
       })
-      console.log(response.data)
+      await signIn(email, password)
     } catch (error) {
+      setIsLoading(false)
       const isAppError = error instanceof AppError
       const title = isAppError ? 
         error.message : 
@@ -158,6 +165,7 @@ export function SignUp() {
           <Button 
             title="Criar e acessar"
             onPress={handleSubmit(handleSignUp)}
+            isLoading={isLoading}
           />
 
           </Center>
