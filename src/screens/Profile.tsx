@@ -50,7 +50,7 @@ const profileSchema = yup.object({
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false)
   const toast = useToast()
-  const { user } = useAuth()
+  const { user, updateUserProfile } = useAuth()
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({ 
     defaultValues: { 
@@ -113,9 +113,16 @@ export function Profile() {
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
-    setIsUpdating(true)
     try {
+      setIsUpdating(true)
+      
+      const userUpdated = user
+      userUpdated.name = user.name
+
       await api.put('/users', data)
+
+      await updateUserProfile(userUpdated)
+
       toast.show({
         placement: 'top',
         render: ({id}) => (
