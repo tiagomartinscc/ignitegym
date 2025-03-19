@@ -40,7 +40,9 @@ const profileSchema = yup.object({
       if (passwordValue[0] == null || passwordValue[0] == undefined) {
         return schema
       }
-      return schema.required('Informe a confirmação da senha.')
+      return schema
+        .required('Informe a confirmação da senha.')
+        .transform((value) => !!value ? value : null)
     }),
 })
 
