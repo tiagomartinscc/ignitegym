@@ -14,6 +14,7 @@ import { Button } from "@components/Button"
 import { ToastMessage } from '@components/ToastMessage'
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useAuth } from '@hooks/useAuth'
+import { api } from "@services/api"
 
 type FormDataProps = {
   name: string
@@ -47,6 +48,7 @@ const profileSchema = yup.object({
 })
 
 export function Profile() {
+  const [isUpdating, setIsUpdating] = useState(false)
   const toast = useToast()
   const { user } = useAuth()
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
@@ -93,15 +95,55 @@ export function Profile() {
         setUserPhoto(photoUri)
       }
     } catch (error) {
-      console.log(error)
+      const isAppError = error instanceof AppError
+      const title = isAppError ? 
+        error.message : 
+        'Não foi possível carregar a imagem. Tente novamente mais tarde.'
+      toast.show({
+        placement: 'top',
+        render: ({id}) => (
+          <ToastMessage
+            id={id}
+            title={title}
+            action="error"
+            onClose={() => toast.close(id)}
+        /> )
+      })      
     }
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
+    setIsUpdating(true)
     try {
-      console.log(data)
+      await api.put('/users', data)
+      toast.show({
+        placement: 'top',
+        render: ({id}) => (
+          <ToastMessage
+            id={id}
+            title="Perfil atualizado com sucesso!"
+            action="success"
+            onClose={() => toast.close(id)}
+        />              
+        )
+      })      
     } catch (error) {
-      console.log(error)
+      const isAppError = error instanceof AppError
+      const title = isAppError ? 
+        error.message : 
+        'Não foi possível atualizar seu perfil. Tente novamente mais tarde.'
+      toast.show({
+        placement: 'top',
+        render: ({id}) => (
+          <ToastMessage
+            id={id}
+            title={title}
+            action="error"
+            onClose={() => toast.close(id)}
+        /> )
+      })      
+    } finally {
+      setIsUpdating(false)
     }
   }
 
@@ -220,6 +262,7 @@ export function Profile() {
           
           <Button 
             title="Atualizar" 
+            isLoading={isUpdating}
             onPress={handleSubmit(handleProfileUpdate)}
           />
         </Center>
