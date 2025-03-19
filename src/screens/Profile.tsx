@@ -15,6 +15,7 @@ import { ToastMessage } from '@components/ToastMessage'
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useAuth } from '@hooks/useAuth'
 import { api } from "@services/api"
+import { AppError } from "@utils/AppError"
 
 type FormDataProps = {
   name: string
@@ -98,10 +99,28 @@ export function Profile() {
           name: `${user.name}.${fileExtension}`.trim().toLowerCase().replaceAll(' ', '_'),
           uri: photoUri,
           type: `${photoSelected.assets[0].type}/${fileExtension}`
-        }
-        console.log(photoFile)
+        } as any
 
+        const userPhotoUploadForm = new FormData()
+        userPhotoUploadForm.append('avatar', photoFile)
 
+        await api.patch('/users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        toast.show({
+          placement: 'top',
+          render: ({id}) => (
+            <ToastMessage
+              id={id}
+              title="Upload da foto realizado com sucesso"
+              action="success"
+              onClose={() => toast.close(id)}
+          />              
+          )
+        })
 
         // setUserPhoto(photoUri)
       }
