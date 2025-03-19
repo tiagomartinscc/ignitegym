@@ -64,7 +64,7 @@ export function Profile() {
   async function handleUserPhotoSelect() {
     try {
       const photoSelected = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        // mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
         aspect: [4, 4],
         allowsEditing: true,
@@ -101,14 +101,20 @@ export function Profile() {
           type: `${photoSelected.assets[0].type}/${fileExtension}`
         } as any
 
+        console.log(photoFile)
+
         const userPhotoUploadForm = new FormData()
         userPhotoUploadForm.append('avatar', photoFile)
 
-        await api.patch('/users/avatar', userPhotoUploadForm, {
+        const avatarUpdatedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
         })
+
+        const userUpdated = user
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar
+        updateUserProfile(userUpdated)
 
         toast.show({
           placement: 'top',
