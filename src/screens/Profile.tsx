@@ -92,7 +92,18 @@ export function Profile() {
             )
           })
         }
-        setUserPhoto(photoUri)
+
+        const fileExtension = photoUri.split('.').pop()
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.trim().toLowerCase().replaceAll(' ', '_'),
+          uri: photoUri,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`
+        }
+        console.log(photoFile)
+
+
+
+        // setUserPhoto(photoUri)
       }
     } catch (error) {
       const isAppError = error instanceof AppError
