@@ -1,4 +1,4 @@
-import { useState } from "react"
+import React, { useState } from "react"
 import { ScrollView, TouchableOpacity } from "react-native"
 import { VStack, Text, Center, Heading, useToast } from "@gluestack-ui/themed"
 
@@ -24,31 +24,47 @@ type FormDataProps = {
 }
 
 const profileSchema = yup.object({
-  name: yup.string().required('Informe seu nome.'),
-  email: yup.string().required('Informe o e-mail.').email('E-mail inválido'),
+  name: yup.string().required('Informe o nome.'),
+  email: yup.string().required('Informe o e-mail.'),
+  password: yup.string()
+    .min(6, 'A senha deve ter pelo menos 6 dígitos.')
+    .nullable()
+    .transform((value) => !!value ? value : null),
+  old_password: yup.string().nullable(),
+  confirm_password: yup
+    .string()
+    .nullable()
+    .transform((value) => !!value ? value : null)
+    .oneOf([yup.ref('password'), null], 'A confirmação de senha não confere.')
+    .when('password', (passwordValue, schema) => {
+      if (passwordValue[0] == null || passwordValue[0] == undefined) {
+        return schema
+      }
+      return schema.required('Informe a confirmação da senha.')
+    }),
 })
 
-export function Profile({name, email}: FormDataProps) {
+export function Profile() {
   const toast = useToast()
   const { user } = useAuth()
-  console.log(user)
   const [userPhoto, setUserPhoto] = useState('https://github.com/tiagomartinscc.png')
-  const { control, handleSubmit, formState: {errors} } = useForm<FormDataProps>({
-    resolver: yupResolver(profileSchema),
-    defaultValues: {
+  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({ 
+    defaultValues: { 
       name: user.name,
-      email: user.email
-    }
-  })  
+      email: user.email,
+    },
+    resolver: yupResolver(profileSchema) 
+  });
 
   async function handleUserPhotoSelect() {
     try {
       const photoSelected = await ImagePicker.launchImageLibraryAsync({
-        // mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
         aspect: [4, 4],
-        allowsEditing: true
-      })
+        allowsEditing: true,
+      });
+
       if (photoSelected.canceled) {
         return
       }
@@ -158,11 +174,12 @@ export function Profile({name, email}: FormDataProps) {
           <Controller 
             control={control}
             name="old_password"
-            render={({field: {onChange}}) => (
+            render={({field: {onChange, value}}) => (
               <Input 
                 placeholder="Senha antiga"
                 bg="$gray600" 
                 onChangeText={onChange}
+                value={value}
                 secureTextEntry 
                 errorMessage={errors.old_password?.message} 
               />
@@ -172,11 +189,12 @@ export function Profile({name, email}: FormDataProps) {
           <Controller 
             control={control}
             name="password"
-            render={({field: {onChange}}) => (
+            render={({field: {onChange, value}}) => (
               <Input 
                 placeholder="Nova senha"
                 bg="$gray600" 
                 onChangeText={onChange}
+                value={value}
                 secureTextEntry 
                 errorMessage={errors.password?.message} 
               />
@@ -186,11 +204,12 @@ export function Profile({name, email}: FormDataProps) {
           <Controller 
             control={control}
             name="confirm_password"
-            render={({field: {onChange}}) => (
+            render={({field: {onChange, value}}) => (
               <Input 
                 placeholder="Confirme a nova senha"
                 bg="$gray600" 
                 onChangeText={onChange}
+                value={value}
                 secureTextEntry 
                 errorMessage={errors.confirm_password?.message} 
               />
